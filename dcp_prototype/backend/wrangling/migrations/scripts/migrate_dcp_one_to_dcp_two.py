@@ -1,4 +1,5 @@
 import sys
+
 sys.path.insert(0, "")  # noqa
 import boto3
 from argparse import ArgumentParser
@@ -50,9 +51,10 @@ def gather_group_file_list(file_list):
     occur between unknown entities.
     """
 
-    # group1 will contain all the non-links files, sorted by type, then by name
+    print(f"Beginning sorting of files.")
+    # Entity group will contain all the non-links files, sorted by type, then by name
     entity_group = []
-    # group2 contains just the links files.
+    # Link group contains just the links files.
     link_group = []
 
     tstart = time.time()
@@ -74,7 +76,7 @@ def gather_group_file_list(file_list):
     link_group.sort()
 
     tend = time.time()
-    print("group_file_list:", (tend-tstart))
+    print(f"Completed sorting of file which took {tend-tstart} seconds.")
     return [entity_group, link_group]
 
 
@@ -151,7 +153,8 @@ def generate_metadata_structure_from_s3_uri(s3_uri, num_threads):
         for _ in range(num_threads):
             thread = threading.Thread(
                 target=consume_file,
-                args=(PREFIX, BUCKET_NAME, filequeue, dataset_metadata))
+                args=(PREFIX, BUCKET_NAME, filequeue, dataset_metadata),
+            )
             thread.start()
             threads.append(thread)
 
@@ -326,8 +329,9 @@ if __name__ == "__main__":
         required=False,
         default=1,
         type=int,
-        help="Number of threads to use when reading files")
-    parser.add_argument("--dryrun", action='store_true')
+        help="Number of threads to use when reading files",
+    )
+    parser.add_argument("--dryrun", action="store_true")
 
     arguments = parser.parse_args()
 
@@ -356,7 +360,7 @@ if __name__ == "__main__":
     tstart = time.time()
     old_metadata = generate_metadata_structure(input_directory, arguments.threads)
     tend = time.time()
-    print("Generate metadata structure:", (tend-tstart))
+    print("Generate metadata structure:", (tend - tstart))
 
     if not arguments.dryrun:
         tstart = time.time()
@@ -364,4 +368,4 @@ if __name__ == "__main__":
             old_metadata, input_directory, "s3" not in input_directory
         )
         tend = time.time()
-        print("export_old_metadata_to_s3_orm:", (tend-tstart))
+        print("export_old_metadata_to_s3_orm:", (tend - tstart))
