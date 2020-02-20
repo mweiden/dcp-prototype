@@ -131,6 +131,7 @@ def generate_metadata_structure_from_s3_uri(s3_uri, num_threads):
     file_list = []
     print("Gather objects: ", end="", flush=True)
     for object in filtered_iterator:
+        print(object)
         object_filename = object.get("Key")
         file_list.append(object_filename.split("/")[-1])
         if len(file_list) % 1000 == 0:
