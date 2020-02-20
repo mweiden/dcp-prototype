@@ -81,7 +81,7 @@ def gather_group_file_list(file_list):
 
 
 def consume_file(prefix, bucket, filequeue, dataset_metadata):
-    total_num_files_to_process = filequeue
+    total_num_files_to_process = len(filequeue)
     start_time = time.time()
 
     while True:
@@ -100,7 +100,10 @@ def consume_file(prefix, bucket, filequeue, dataset_metadata):
         qsize = filequeue.qsize()
         if qsize % 1000 == 0 and qsize > 0:
             print(f"Number of files to process in the queue: {qsize}")
-            print(f"Total time per file = {(total_num_files_to_process - qsize)/(time.time() - start_time)}")
+            print(
+                f"Total time per file = "
+                f"{(total_num_files_to_process - qsize)/(time.time() - start_time)}"
+            )
         object = S3_RESOURCE.Object(bucket, file_prefix)
         object_body = object.get()["Body"].read()
 
