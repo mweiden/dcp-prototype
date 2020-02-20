@@ -416,6 +416,9 @@ class OldDatasetMetadata:
                             )
                         )
 
+                        if self.sequence_files.get(seq_file_id) is None:
+                            print(f"Wasn't able to find sequence file {seq_file_id}.")
+
                         output_index += 1
 
                     input_index += 1

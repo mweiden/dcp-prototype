@@ -327,6 +327,7 @@ if __name__ == "__main__":
         default=1,
         type=int,
         help="Number of threads to use when reading files")
+    parser.add_argument("--dryrun", action='store_true')
 
     arguments = parser.parse_args()
 
@@ -357,9 +358,10 @@ if __name__ == "__main__":
     tend = time.time()
     print("Generate metadata structure:", (tend-tstart))
 
-    tstart = time.time()
-    export_old_metadata_to_s3_orm(
-        old_metadata, input_directory, "s3" not in input_directory
-    )
-    tend = time.time()
-    print("export_old_metadata_to_s3_orm:", (tend-tstart))
+    if not arguments.dryrun:
+        tstart = time.time()
+        export_old_metadata_to_s3_orm(
+            old_metadata, input_directory, "s3" not in input_directory
+        )
+        tend = time.time()
+        print("export_old_metadata_to_s3_orm:", (tend-tstart))
