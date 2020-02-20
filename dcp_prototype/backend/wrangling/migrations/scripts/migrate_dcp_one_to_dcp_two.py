@@ -96,7 +96,7 @@ def consume_file(prefix, bucket, filequeue, dataset_metadata):
 
         qsize = filequeue.qsize()
         if qsize % 1000 == 0 and qsize > 0:
-            print(f"Working with JSON input file: {file_prefix}, queued size={qsize}")
+            print(f"Number of files to process in the queue: {qsize}")
         object = S3_RESOURCE.Object(bucket, file_prefix)
         object_body = object.get()["Body"].read()
 
@@ -129,17 +129,16 @@ def generate_metadata_structure_from_s3_uri(s3_uri, num_threads):
     filtered_iterator = page_iterator.search("Contents[?contains(Key, `.json`)][]")
 
     file_list = []
-    print("Gather objects: ", end=" ")
+    print("Gather DCP 1.o objects from S3: ", end=" ")
     for object in filtered_iterator:
         object_filename = object.get("Key")
         file_list.append(object_filename.split("/")[-1])
         if len(file_list) % 1000 == 0:
             print(len(file_list), end=" ")
 
-    print()
-    group_file_list = gather_group_file_list(file_list)
+    print(f"Finished gathering {len(file_list)} objects.")
 
-    print(f"Files in directory to parse: {len(file_list)}")
+    group_file_list = gather_group_file_list(file_list)
 
     tstart = time.time()
     for group_files in group_file_list:
@@ -356,6 +355,9 @@ if __name__ == "__main__":
         BUCKET_NAME = arguments.bucket[0]
     if arguments.prefix:
         PREFIX = arguments.prefix[0]
+
+    if arguments.dryrun:
+        print("Running a dry-run of the metadata migration!")
 
     tstart = time.time()
     old_metadata = generate_metadata_structure(input_directory, arguments.threads)
