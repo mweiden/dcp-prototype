@@ -81,6 +81,9 @@ def gather_group_file_list(file_list):
 
 
 def consume_file(prefix, bucket, filequeue, dataset_metadata):
+    total_num_files_to_process = filequeue
+    start_time = time.time()
+
     while True:
         filename = filequeue.get()
 
@@ -97,6 +100,7 @@ def consume_file(prefix, bucket, filequeue, dataset_metadata):
         qsize = filequeue.qsize()
         if qsize % 1000 == 0 and qsize > 0:
             print(f"Number of files to process in the queue: {qsize}")
+            print(f"Total time per file = {(total_num_files_to_process - qsize)/(time.time() - start_time)}")
         object = S3_RESOURCE.Object(bucket, file_prefix)
         object_body = object.get()["Body"].read()
 
@@ -129,7 +133,7 @@ def generate_metadata_structure_from_s3_uri(s3_uri, num_threads):
     filtered_iterator = page_iterator.search("Contents[?contains(Key, `.json`)][]")
 
     file_list = []
-    print("Gather DCP 1.o objects from S3: ", end=" ")
+    print("Gathering DCP 1.0 objects from S3: ", end=" ")
     for object in filtered_iterator:
         object_filename = object.get("Key")
         file_list.append(object_filename.split("/")[-1])
@@ -358,6 +362,11 @@ if __name__ == "__main__":
 
     if arguments.dryrun:
         print("Running a dry-run of the metadata migration!")
+    else:
+        print(
+            "Running a production run of the metadata migration! Ledger database will "
+            "be updated with migrated data!"
+        )
 
     tstart = time.time()
     old_metadata = generate_metadata_structure(input_directory, arguments.threads)
