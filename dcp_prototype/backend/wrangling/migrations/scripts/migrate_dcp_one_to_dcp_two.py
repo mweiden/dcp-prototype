@@ -81,7 +81,7 @@ def gather_group_file_list(file_list):
 
 
 def consume_file(prefix, bucket, filequeue, dataset_metadata):
-    total_num_files_to_process = len(filequeue)
+    total_num_files_to_process = filequeue.qsize()
     start_time = time.time()
 
     while True:
