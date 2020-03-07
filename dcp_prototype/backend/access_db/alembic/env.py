@@ -63,6 +63,11 @@ def run_migrations_online():
     and associate a connection with the context.
 
     """
+    alembic_config = config.get_section(config.config_ini_section)
+    db_config = config.get_section('alembic')
+    for key in db_config:
+        alembic_config[key] = db_config[key]
+
     connectable = engine_from_config(
         config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",

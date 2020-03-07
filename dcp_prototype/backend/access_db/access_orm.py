@@ -4,7 +4,7 @@ import sys
 
 from sqlalchemy import ARRAY, BigInteger, Column, create_engine, DateTime, Enum, ForeignKey, String, text
 from sqlalchemy.orm import relationship, sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import declarative_base, declared_attr
 
 Base = declarative_base()
 
@@ -20,23 +20,27 @@ class DBSessionMaker:
         return self.session_maker(**kwargs)
 
 
-class DCPBase(Base):
+class MixinDCP(object):
+    @declared_attr
+    def __tablename__(cls):
+        return cls.__name__.lower()
+
     created_at = Column(DateTime(True), nullable=False, server_default=text("now()"))
     updated_at = Column(DateTime(True), nullable=False, server_default=text("now()"))
 
 
-class Users(DCPBase):
+class Users(Base, MixinDCP):
     id = Column(String, primary_key=True)
     email = Column(String, unique=True)
 
 
-class Group(DCPBase):
+class Groups(Base, MixinDCP):
     id = Column(String, primary_key=True)
 
 
-class Resource(DCPBase):
+class Resources(Base, MixinDCP):
     id = Column(String, primary_key=True)
 
 
-class Role(DCPBase):
+class Roles(Base, MixinDCP):
     id = Column(String, primary_key=True)
